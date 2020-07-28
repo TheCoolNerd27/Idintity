@@ -38,7 +38,7 @@ class Scan extends StatefulWidget {
 class _ScanState extends State<Scan> {
     File _image;
     var _imageSize;
-    var dueDate;
+    var dueDate,date;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -56,7 +56,7 @@ class _ScanState extends State<Scan> {
           ),
           _image!=null?Image.file(_image,height:300,width:200):Container(),
           Container(
-              child: Text('Recognised Text:$dueDate'),
+              child: Text('Recognised Text:$date'),
           ),
             Container(
                 child: Center(
@@ -65,6 +65,7 @@ class _ScanState extends State<Scan> {
                             setState(() {
                               _image=null;
                               dueDate=null;
+                              date=null;
                             });
                         },
                         child: Text('Reset'),
@@ -123,9 +124,16 @@ class _ScanState extends State<Scan> {
           .map((str)=>DateTime.parse(str).toIso8601String()+"+05:30")
           .toList();
       extDates.sort((a,b) => b.compareTo(a));
+      var dd=DateTime.parse(extDates[0]).toString().substring(0,10);
+      var res=dd.split("-");
+      var temp=res[0];
+      res[0]=res[2];
+      res[2]=temp;
+      dd=res.join("-");
       var dDate=extDates[0];
       setState(() {
         dueDate=dDate;
+        date=dd;
       });
 
 

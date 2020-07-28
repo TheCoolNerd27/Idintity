@@ -12,9 +12,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    Widget _defaultHome=Login();
-    if(_authenticationService.getUSer()!=null)
-      _defaultHome=ScanPage();
+//    Widget _defaultHome=Login();
+//    if(_authenticationService.getUSer()!=null)
+//      _defaultHome=ScanPage();
     return MaterialApp(
       title: 'Hamari',
       theme: ThemeData(
@@ -29,16 +29,17 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: _defaultHome,
-//      initialRoute: '/',
-//      routes: {
-//        // When navigating to the "/" route, build the FirstScreen widget.
-//
-//        // When navigating to the "/second" route, build the SecondScreen widget.
-//
-//        '/Scan': (context) => ScanPage(),
-//
-//      },
+      home: MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the FirstScreen widget.
+
+        // When navigating to the "/second" route, build the SecondScreen widget.
+
+        '/Scan': (context) => ScanPage(),
+        '/Login':(context)=>Login()
+
+      },
     );  }
 }
 
@@ -88,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
+      drawer: MyDrawer(),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.

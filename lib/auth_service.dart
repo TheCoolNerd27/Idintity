@@ -74,7 +74,8 @@ class AuthenticationService {
                     ref.setData({
                         "email": user.email,
                         "Name": user.displayName,
-                        "deviceId": identifier
+                        "deviceId": identifier,
+                        "isCompleted":false
                     });
                 }
                 else {

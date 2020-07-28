@@ -53,7 +53,7 @@ class _LoginState extends State<Login> {
           ),
       );
   }
-  void googleSignIn() async{
+  void googleSignIn(BuildContext context) async{
       var user;
       var res=await _authenticationService.signInWithGoogle();
       if(res==1)
@@ -77,11 +77,23 @@ class _LoginState extends State<Login> {
                          textColor: Colors.black,
                          fontSize: 16.0
                      );
+
+
+                 }
+             var isComp=await security();
+             if(isComp==false)
+                 {
+                     Navigator.of(context).push(MaterialPageRoute(builder: (context) => CompleteProfile("comp",_userID)));
+                 }
+             else
+                 {
+                     Navigator.pushNamed(context, "/Scan");
                  }
           }
       else if(res==2)
           {
              //When user signs in on a different device
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => CompleteProfile("verify",_userID)));
           }
       else
           {
@@ -99,7 +111,157 @@ class _LoginState extends State<Login> {
               );
           }
   }
+
+ Future<bool> security()
+  async{
+      var isComp=
+      await Firestore.instance.collection('Users').document(_userID)
+          .get().then((doc){
+              return doc["isCompleted"];
+
+      });
+      return isComp;
+  }
+
 }
+
+class CompleteProfile extends StatefulWidget {
+    String option,uid;
+    CompleteProfile(this.option,this.uid);
+  @override
+  _CompleteProfileState createState() => _CompleteProfileState();
+}
+
+class _CompleteProfileState extends State<CompleteProfile> {
+    String _ques="What is the name of your first school?", _answer;
+    TextEditingController controllerNickname;
+    TextEditingController controllerAboutMe;
+
+    @override
+    void initState() {
+        // TODO: implement initState
+        super.initState();
+
+
+        controllerNickname = new TextEditingController(text: _ques);
+        controllerAboutMe = new TextEditingController();
+    }
+    void submitData(BuildContext context)
+    async{
+        if(widget.option=="verify")
+            {
+                var ans=await Firestore.instance.collection("Users").document(widget.uid)
+                    .get().then((doc){
+                   return doc['answer'];
+                });
+                if(ans==_answer)
+                    {
+                        Navigator.pushNamed(context, "/Scan");
+                    }
+                else
+                    {
+                        Fluttertoast.showToast(
+                            msg: "Wrong Answer,Try Again!",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 2,
+                            backgroundColor: Colors.redAccent,
+                            textColor: Colors.black,
+                            fontSize: 16.0);
+
+                    }
+            }
+        else{
+            var ref = Firestore.instance
+                .collection("Users")
+                .document(widget.uid)
+                .updateData({"isCompleted":true,"answer":_answer}).then(
+                    (value) async {
+
+
+
+                    Fluttertoast.showToast(
+                        msg: "Update Successful",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 2,
+                        backgroundColor: Colors.greenAccent,
+                        textColor: Colors.black,
+                        fontSize: 16.0);
+                    Navigator.pushNamed(context, '/chats');
+                }).catchError((err) {
+                Fluttertoast.showToast(
+                    msg: err.toString(),
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 2,
+                    backgroundColor: Colors.redAccent,
+                    textColor: Colors.black,
+                    fontSize: 16.0);
+                Navigator.pushNamed(context, '/Login');
+            });
+
+
+        }
+    }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text("Security Questions"),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(30),
+                ),
+            ),
+        ),
+        body: SingleChildScrollView(
+            child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+
+
+                    //padding:EdgeInsets.only(left: 0.0, right: 0.0, top: 0.0, bottom: 0.0),
+                    children: <Widget>[
+
+                        TextField(
+                            controller: controllerNickname,
+                            decoration: InputDecoration(labelText: 'Display Name'),
+                            enabled: false,
+                        ),
+                        TextField(
+                            controller: controllerAboutMe,
+                            decoration: InputDecoration(
+                                labelText: 'About me',
+                            ),
+                            onChanged: (value) {
+                                setState(() {
+                                    _answer = value;
+                                });
+                            },
+                        ),
+                        SizedBox(
+                            height: 15.0,
+                        ),
+                        RaisedButton(
+                            onPressed: () {
+                                controllerAboutMe.clear();
+                                submitData(context);},
+                            child: Text("Submit"),
+                            textColor: Colors.black,
+                            color: Colors.orange),
+                    ],
+                ),
+            ),
+        ),
+
+        drawer: MyDrawer(),
+    );
+  }
+}
+
+
 
 
 
@@ -154,7 +316,7 @@ class MyDrawer extends StatelessWidget {
                           // Update the state of the app
                           // ...
                           // Then close the drawer
-                          Navigator.pushNamed(context,'/login');
+                          Navigator.pushNamed(context,'/Login');
                       },
                   ),
                   ListTile(
