@@ -6,6 +6,12 @@ import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:image_cropper/image_cropper.dart';
 import 'package:hamari/LoginScreen.dart';
+import 'package:hamari/httpClient.dart';
+import 'package:hamari/auth_service.dart';
+import 'package:hamari/service_locator.dart';
+import 'package:hamari/LoginScreen.dart';
+final AuthenticationService _authenticationService =
+locator<AuthenticationService>();
 class ScanPage extends StatelessWidget {
     String title = 'Scan';
 
@@ -39,8 +45,9 @@ class _ScanState extends State<Scan> {
     File _image;
     var _imageSize;
     var dueDate,date;
+    BuildContext context;
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
@@ -103,28 +110,31 @@ class _ScanState extends State<Scan> {
       setState(() {
         _image=croppedFile;
       });
-    getText();
+    getText(croppedFile);
   }
-  void getText()
+    Iterable<String> _allStringMatches(String text, RegExp regExp) =>
+        regExp.allMatches(text).map((m) => m.group(0));
+  void getText(File image)
   async{
-      final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(_image);
+      final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(image);
       final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
       final VisionText visionText = await textRecognizer.processImage(visionImage);
       String pattern =
-          r"_((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_";
+          r"_?((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_?";
       RegExp regEx = RegExp(pattern,multiLine:true);
       //Returns All Matching Dates as a Map
-      Iterable<String> _allStringMatches(String text, RegExp regExp) =>
-          regExp.allMatches(text).map((m) => m.group(0));
+
 
       String txt=visionText.text;
-
+        print(txt.replaceAll(" ","_"));
       var extDates=_allStringMatches(txt.replaceAll(" ","_"),regEx).map((str)=>str.replaceAll("_",""))
           .map((str)=>convertDate(str))
           .map((str)=>DateTime.parse(str).toIso8601String()+"+05:30")
           .toList();
       extDates.sort((a,b) => b.compareTo(a));
-      var dd=DateTime.parse(extDates[0]).toString().substring(0,10);
+      var dd;
+      print(extDates);
+       dd=DateTime.parse(extDates[0]).toString().substring(0,10);
       var res=dd.split("-");
       var temp=res[0];
       res[0]=res[2];
@@ -133,8 +143,11 @@ class _ScanState extends State<Scan> {
       var dDate=extDates[0];
       setState(() {
         dueDate=dDate;
+          //dueDate=txt;
         date=dd;
       });
+      //addEvent();
+
 
 
 
@@ -142,7 +155,10 @@ class _ScanState extends State<Scan> {
 
   String convertDate(String dates)
   {
+
       var res = dates.split(new RegExp(r"(-|\/)"));
+      if(res.length==2)
+          res.insert(0, "01");
       switch (res[(res.length - 2)]) {
           case "Jan":
           case "January":
@@ -199,6 +215,27 @@ class _ScanState extends State<Scan> {
       return (res.join("-"));
 
   }
+
+  void addEvent()
+  async{
+
+
+    if(_authenticationService.getUSer()==null)
+        Navigator.pushNamed(context, "/Login");
+    else {
+        var authHeaders = await _authenticationService.getAuthHeaders();
+        final httpClient = GoogleHttpClient(authHeaders);
+
+
+
+    }
+
+
+
+
+
+  }
+
 
 
 

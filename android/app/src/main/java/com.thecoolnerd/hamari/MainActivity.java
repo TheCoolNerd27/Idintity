@@ -1,4 +1,4 @@
-package thecoolnerd.hamari;
+package com.thecoolnerd.hamari;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity;

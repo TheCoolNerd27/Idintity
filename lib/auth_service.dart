@@ -6,7 +6,12 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'dart:io';
 final FirebaseAuth auth = FirebaseAuth.instance;
-final GoogleSignIn googleSignIn = GoogleSignIn();
+final GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: <String>[
+        'email',
+        'https://www.googleapis.com/auth/calendar',
+    ],
+);
 class AuthenticationService {
 
 //    Future loginWithEmail(
@@ -33,10 +38,15 @@ class AuthenticationService {
         return udf;
 
     }
+    Future<Map<String,String>> getAuthHeaders()
+    async{
+        return await googleSignIn.currentUser.authHeaders;
+    }
 
     Future<int> signInWithGoogle() async {
         String identifier;
         String checkId;
+        var resul;
         try {
             final DeviceInfoPlugin deviceInfoPlugin = new DeviceInfoPlugin();
             final GoogleSignInAccount googleUser = await googleSignIn.signIn();
@@ -77,30 +87,37 @@ class AuthenticationService {
                         "deviceId": identifier,
                         "isCompleted":false
                     });
+                   resul= 1;
                 }
                 else {
-                    var snap = Firestore.instance.collection('Users').document(
+                    await Firestore.instance.collection('Users').document(
                         user.uid).get().then((doc) async {
                         checkId = doc['deviceId'];
                         if (checkId == identifier) {
-                            return 1; //Same Device
+                            print("F");
+                            resul=1; //Same Device
                         }
                         else {
-                            return 2; //Different Device
+                            print("J2");
+                            resul= 2; //Different Device
 
                         }
                     });
                 }
             }
             else
-                return 0;
+                resul= 0;
             final FirebaseUser currentUser = await auth.currentUser();
             assert(user.uid == currentUser.uid);
 
         }
         catch (e) {
-            return e.message;
+            print(e.message);
+            resul=0;
         }
+        print("Hello$resul");
+        return resul;
+
     }
     Future signOut()
     async {

@@ -3,6 +3,7 @@ import 'package:hamari/service_locator.dart';
 import 'package:hamari/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:fluttertoast/fluttertoast.dart';
 final AuthenticationService _authenticationService =
 locator<AuthenticationService>();
@@ -21,6 +22,7 @@ class _LoginState extends State<Login> {
       return Scaffold(
           appBar: AppBar(
               title: Text("Login"),),
+          drawer: MyDrawer(),
           body:Container(
               padding:EdgeInsets.all(25.0) ,
               child:Center(
@@ -29,7 +31,7 @@ class _LoginState extends State<Login> {
                       padding: EdgeInsets.all(15.0),
                       onPressed: () {
 
-                          //googleSignIn();
+                          googleSignIn(context);
                       },
 
                       child: Row(
@@ -97,6 +99,7 @@ class _LoginState extends State<Login> {
           }
       else
           {
+              print(res);
               setState(() {
                   _success = false;
               });
@@ -188,7 +191,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                         backgroundColor: Colors.greenAccent,
                         textColor: Colors.black,
                         fontSize: 16.0);
-                    Navigator.pushNamed(context, '/chats');
+                    Navigator.pushNamed(context, '/Scan');
                 }).catchError((err) {
                 Fluttertoast.showToast(
                     msg: err.toString(),
@@ -249,8 +252,8 @@ class _CompleteProfileState extends State<CompleteProfile> {
                                 controllerAboutMe.clear();
                                 submitData(context);},
                             child: Text("Submit"),
-                            textColor: Colors.black,
-                            color: Colors.orange),
+                            textColor: Colors.white,
+                            color: Colors.red),
                     ],
                 ),
             ),
@@ -291,7 +294,7 @@ class MyDrawer extends StatelessWidget {
                               bottom: 8.0,
                               left: 18.0,
                               right: 0.0,
-                              child: Text("Help4Real",
+                              child: Text("Identity",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20.0,
