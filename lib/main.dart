@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Hamari',
       theme: ThemeData(
 
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
       home: MyHomePage(title: "Dashboard",),
       initialRoute: '/',
