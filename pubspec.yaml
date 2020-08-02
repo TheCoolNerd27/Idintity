@@ -56,6 +56,13 @@ flutter:
   assets:
     - assets/images/drawer_header_background.png
     - assets/images/google.png
+    - assets/images/appliances.png
+    - assets/images/bill.png
+    - assets/images/clean.png
+    - assets/images/document.png
+    - assets/images/new.png
+    - assets/images/identity.png
+    - assets/images/pickup-car.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -21,6 +21,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
       return Scaffold(
           appBar: AppBar(
+
               title: Text("Login"),),
           drawer: MyDrawer(),
           body:Container(
@@ -322,17 +323,7 @@ class MyDrawer extends StatelessWidget {
                           Navigator.pushNamed(context,'/Login');
                       },
                   ),
-                  ListTile(
-                      leading: Icon(Icons.scanner),
-                      title: Text('Scan'),
-                      onTap: () {
-                          // Update the state of the app
-                          // ...
-                          // Then close the drawer
-                          Navigator.pushNamed(context,'/Scan');
 
-                      },
-                  ),
                   ListTile(
                       leading: Icon(Icons.exit_to_app),
                       title: Text('Logout'),

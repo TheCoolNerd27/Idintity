@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
 
         // When navigating to the "/second" route, build the SecondScreen widget.
 
-        '/Scan': (context) => ScanPage(),
+
         '/Login':(context)=>Login()
 
       },
@@ -50,60 +50,187 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+
+  var user;
+
   @override
-  void initState() {
+  void initState() async{
     // TODO: implement initState
     super.initState();
+    _authenticationService.getInstance().onAuthStateChanged.listen((usr)async{
+      setState((){
+        user=usr;
+
+      });
+
+    });
+
+
+
 
     //googleSignIn.signInSilently();
 
   }
 
-  void _incrementCounter() {
-    setState(() {
 
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+
         title: Text(widget.title),
       ),
       drawer: MyDrawer(),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+
         child: Column(
 
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+            Container(
+              decoration:BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red,
+                blurRadius: 5.0,
+                spreadRadius: 2.0,
+              ),
+            ]
+        ),
+              child: Card(
+
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage: NetworkImage(user.photoUrl),
+                      ),
+                      title: Text('${user.displayName}')??Text("Loading.."),
+                      subtitle: Text('${user.email}')??Text("Loading.."),
+                    ),
+
+                      FlatButton(
+                          onPressed: null,
+                          child: Text("View Documents")
+                      ) ,
+
+                  ],
+                ),
+
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+            GridView.count(
+              crossAxisCount: 2,
+              padding: const EdgeInsets.all(20),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              children: <Widget>[
+                Container(
+
+                  decoration:BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red,
+                          blurRadius: 5.0,
+                          spreadRadius: 2.0,
+                        ),
+                      ]
+                  ),
+
+                  child: InkResponse(
+                    enableFeedback: true,
+                    child: Column(
+                      children: <Widget>[
+                        Container(child: Image.asset('assets/images/identity.png')),
+                        Text("Identity")
+                      ],
+                    ),
+                    onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(1))),
+                  ),
+                ),
+                Container(
+                  decoration:BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red,
+                          blurRadius: 5.0,
+                          spreadRadius: 2.0,
+                        ),
+                      ]
+                  ),
+                  child: InkResponse(
+                    enableFeedback: true,
+                    child: Column(
+                      children: <Widget>[
+                        Container(child: Image.asset('assets/images/appliances.png')),
+                        Text("Appliances")
+                      ],
+                    ),
+                    onTap:()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(2))),
+                  ),
+                ),
+                Container(
+                  decoration:BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red,
+                          blurRadius: 5.0,
+                          spreadRadius: 2.0,
+                        ),
+                      ]
+                  ),
+                  child: InkResponse(
+                    enableFeedback: true,
+                    child: Column(
+                      children: <Widget>[
+                        Container(child: Image.asset('assets/images/pickup-car.png')),
+                        Text("Identity")
+                      ],
+                    ),
+                    onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(3))),
+                  ),
+                ),
+                Container(
+                  decoration:BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red,
+                          blurRadius: 5.0,
+                          spreadRadius: 2.0,
+                        ),
+                      ]
+                  ),
+                  child: InkResponse(
+                    enableFeedback: true,
+                    child: Column(
+                      children: <Widget>[
+                        Container(child: Image.asset('assets/images/bill.png')),
+                        Text("Utilities")
+                      ],
+                    ),
+                    onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(4))),
+                  ),
+                ),
+              ],
             ),
+
+
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

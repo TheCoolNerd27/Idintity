@@ -14,30 +14,11 @@ import 'package:hamari/service_locator.dart';
 final AuthenticationService _authenticationService =
     locator<AuthenticationService>();
 
-class ScanPage extends StatelessWidget {
-  String title = 'Scan';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Scan(),
-      ),
-      drawer: MyDrawer(),
-    );
-  }
-}
-
+//TODO: Create an Upload function to upload doc to firebase and create calendar event if ans==true
 class Scan extends StatefulWidget {
+  int choice;
+  Scan(this.choice);
   @override
   _ScanState createState() => _ScanState();
 }
@@ -46,66 +27,319 @@ class _ScanState extends State<Scan> {
   File _image;
   var _imageSize;
   var dueDate, date, toDate;
-
+  final _formkey = GlobalKey<FormState>();
+  String dropdownValue;
   String docName;
   BuildContext context;
+  bool ques,ans;
+  TextEditingController _getDueDate;
   @override
-  Widget build(context) {
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      ques=true;
+      ans=false;
+
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Scan"),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: content(context),
+      ),
+      drawer: MyDrawer(),
+    );
+  }
+
+  Widget content(context) {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Center(
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Document Name',
+        Expanded(
+          flex: 1,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                child:_image!=null?Image.file(_image, height: 300, width: 200):IconButton(icon: ImageIcon(AssetImage("assets/images/new.png")), onPressed: pick),
               ),
-              onChanged: (value) {
-                setState(() {
-                  docName = value;
-                });
-              },
-            ),
+
+            ],
           ),
-          Container(
-            child: Center(
-              child: RaisedButton(
-                onPressed: pick,
-                child: Text('Extract Text'),
+          
+        ),
+          Expanded(
+            flex: 1,
+            child:Form(
+              key:_formkey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Document Name',
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        docName = value;
+                      });
+                    },
+                  validator: (value){
+                      if(value.isEmpty)
+                        {
+                          return "Name cannot be empty!";
+                        }
+                      else{
+                        return null;
+                      }
+                  },
+
+                  ),
+                  SizedBox(height:15.0),
+                  (widget.choice==1)?Identity():
+                  (widget.choice==2)?Appliances():
+                  (widget.choice==3)?Vehicle():Utilities(),
+                  SizedBox(height:15.0),
+                  Row(
+                    children: <Widget>[
+                      Visibility(
+                        visible: ques,
+                          child: Text("Does it have a Due date?"),
+                      ),
+                      ButtonBar(
+                        children: <Widget>[
+                          IconButton(
+                              icon: Icon(Icons.check,color: Colors.greenAccent,size: 25.0,),
+                              onPressed: (){
+                                setState(() {
+                                  ans=true;
+                                  getText();
+
+                                });
+                              }),
+                          SizedBox(width: 15.0,),
+                          IconButton(
+                              icon: Icon(Icons.clear,color: Colors.redAccent,size: 25.0,),
+                              onPressed: (){
+                            setState(() {
+                              ques=false;
+                            });
+                          })
+                        ],
+                      )
+
+                    ],
+                  ),
+                  SizedBox(height:15.0),
+                  Visibility(
+                    visible: ans,
+                    child: TextFormField(
+                      controller: _getDueDate,
+                      decoration: InputDecoration(labelText: 'DueDate'),
+                      enabled: false,
+                    ),
+                  ),
+
+                  SizedBox(height:15.0),
+                  Row(
+                    children: <Widget>[
+                      RaisedButton(
+                          onPressed:(){
+                            if (_formkey.currentState.validate())
+                              {
+                                //Upload To Firebase
+                                //Add a condition to Upload Date only if its not null
+                                _formkey.currentState.reset();
+                              }
+
+                          },
+                        child: Text("Upload"),
+                          textColor: Colors.white,
+                          color: Colors.redAccent
+                      ),
+                      SizedBox(width: 10.0,),
+                      RaisedButton(
+                          onPressed:(){
+                           setState(() {
+                             date=null;
+                             dueDate=null;
+                             toDate=null;
+                             date=null;
+                             _image=null;
+                             ques=true;
+                             ans=false;
+                             _getDueDate.clear();
+                           });
+                          },
+                          child: Text("Scsn Again"),
+                          textColor: Colors.white,
+                          color: Colors.redAccent
+                      ),
+
+                    ],
+                  )
+                ],
               ),
-            ),
+            ) ,
+
           ),
-          _image != null
-              ? Image.file(_image, height: 300, width: 200)
-              : Container(),
-          Container(
-            child: Text('Recognised Text:$date'),
-          ),
-          Container(
-            child: Center(
-              child: RaisedButton(
-                onPressed: () {
-                  setState(() {
-                    _image = null;
-                    dueDate = null;
-                    date = null;
-                  });
-                },
-                child: Text('Reset'),
-              ),
-            ),
-          ),
-          Container(
-            child: Center(
-              child: RaisedButton(
-                onPressed: addEvent,
-                child: Text('Add Event to Calendar'),
-              ),
-            ),
-          ),
+
+
         ],
       ),
     );
   }
+  Widget Identity()
+  {
+    return DropdownButtonFormField<String>(
+      value: dropdownValue ,
+
+      icon: Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.deepPurple),
+      hint: Text("Type of Document"),
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Type cannot be empty!";
+        }
+        else {
+          return null;
+        }
+
+      },
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: <String>['Passport', 'Aadhar', 'Voter', 'Pan','Certificates','Courses','Others']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+
+  }
+  Widget Appliances()
+  {
+
+    return DropdownButtonFormField<String>(
+      value: dropdownValue ,
+      icon: Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.deepPurple),
+      hint: Text("Type of Document"),
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Type cannot be empty!";
+        }
+        else {
+          return null;
+        }
+
+      },
+
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: <String>['Washing Machine', 'Microwave', 'Fridge', 'AC','Dishwasher','T.V']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+
+
+  }
+  Widget Vehicle()
+  {
+
+    return DropdownButtonFormField<String>(
+      value: dropdownValue ,
+      icon: Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.deepPurple),
+      hint: Text("Type of Document"),
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Type cannot be empty!";
+        }
+        else {
+          return null;
+        }
+
+      },
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: <String>['Car', 'MotorCycle', 'Others']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+
+
+  }
+  Widget Utilities()
+  {
+    String dropdownValue="Type of Document";
+    return DropdownButtonFormField<String>(
+      value: dropdownValue ,
+      icon: Icon(Icons.arrow_downward),
+      iconSize: 24,
+      elevation: 16,
+      style: TextStyle(color: Colors.deepPurple),
+      hint: Text("Type of Document"),
+      validator: (value) {
+        if (value.isEmpty) {
+          return "Type cannot be empty!";
+        }
+        else {
+          return null;
+        }
+
+      },
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: <String>['Electricity', 'Phone', 'Others']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+
+
+  }
+
 
   void pick() async {
     //pick image   use ImageSource.camera for accessing camera.
@@ -133,13 +367,13 @@ class _ScanState extends State<Scan> {
     setState(() {
       _image = croppedFile;
     });
-    getText(croppedFile);
+
   }
 
   Iterable<String> _allStringMatches(String text, RegExp regExp) =>
       regExp.allMatches(text).map((m) => m.group(0));
-  void getText(File image) async {
-    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(image);
+  void getText() async {
+    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(_image);
     final TextRecognizer textRecognizer =
         FirebaseVision.instance.textRecognizer();
     final VisionText visionText =
@@ -173,6 +407,7 @@ class _ScanState extends State<Scan> {
       toDate = toDat;
       //dueDate=txt;
       date = dd;
+      _getDueDate.value=date;
     });
     //addEvent();
   }

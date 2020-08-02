@@ -35,6 +35,7 @@ class AuthenticationService {
 
     Future<FirebaseUser> getUSer()async{
         FirebaseUser udf=await auth.currentUser();
+
         return udf;
 
     }
