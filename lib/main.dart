@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hamari/scan.dart';
@@ -25,13 +26,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.red,
       ),
       home: MyHomePage(title: "Dashboard",),
-      initialRoute: '/',
+      initialRoute: '/Login',
       routes: {
         // When navigating to the "/" route, build the FirstScreen widget.
 
         // When navigating to the "/second" route, build the SecondScreen widget.
 
-
+        '/Home':(context)=>MyHomePage(title: "Dashboard",),
         '/Login':(context)=>Login()
 
       },
@@ -54,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var user;
 
   @override
-  void initState() async{
+  void initState() {
     // TODO: implement initState
     super.initState();
     _authenticationService.getInstance().onAuthStateChanged.listen((usr)async{
@@ -89,141 +90,162 @@ class _MyHomePageState extends State<MyHomePage> {
 
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              decoration:BoxDecoration(
-            color: Colors.grey,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.red,
-                blurRadius: 5.0,
-                spreadRadius: 2.0,
-              ),
-            ]
-        ),
-              child: Card(
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
 
-                child: Column(
-                  children: <Widget>[
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(user.photoUrl),
-                      ),
-                      title: Text('${user.displayName}')??Text("Loading.."),
-                      subtitle: Text('${user.email}')??Text("Loading.."),
-                    ),
-
-                      FlatButton(
-                          onPressed: null,
-                          child: Text("View Documents")
-                      ) ,
-
-                  ],
+                decoration:BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.rectangle,//BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.red,
+                  blurRadius: 5.0,
+                  spreadRadius: 2.0,
                 ),
+              ]
+        ),
+                child: Card(
 
+
+                  child: Column(
+                    children: <Widget>[
+                      ListTile(
+
+                        leading: CircleAvatar(
+                          backgroundImage: user!=null?NetworkImage(user.photoUrl):NetworkImage("https://cdn.iconscout.com/icon/free/png-256/laptop-user-1-1179329.png"),
+
+                        ),
+                        title:user!=null? Text('${user.displayName}'):Text("Loading.."),
+                        subtitle: user!=null?Text('${user.email}'):Text("Loading.."),
+                      ),
+
+                        FlatButton(
+                            onPressed: null,
+                            child: Text("View Documents")
+                        ) ,
+
+                    ],
+                  ),
+
+                ),
               ),
             ),
-            GridView.count(
-              crossAxisCount: 2,
-              padding: const EdgeInsets.all(20),
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              children: <Widget>[
-                Container(
+            SizedBox(height:20.0),
+            Expanded(
+              child: GridView.count(
 
-                  decoration:BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red,
-                          blurRadius: 5.0,
-                          spreadRadius: 2.0,
-                        ),
-                      ]
-                  ),
+                crossAxisCount: 2,
+                padding: const EdgeInsets.all(20),
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                children: <Widget>[
+                  Container(
 
-                  child: InkResponse(
-                    enableFeedback: true,
-                    child: Column(
-                      children: <Widget>[
-                        Container(child: Image.asset('assets/images/identity.png')),
-                        Text("Identity")
-                      ],
+                    decoration:BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red,
+                            blurRadius: 5.0,
+                            spreadRadius: 2.0,
+                          ),
+                        ]
                     ),
-                    onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(1))),
-                  ),
-                ),
-                Container(
-                  decoration:BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red,
-                          blurRadius: 5.0,
-                          spreadRadius: 2.0,
-                        ),
-                      ]
-                  ),
-                  child: InkResponse(
-                    enableFeedback: true,
-                    child: Column(
-                      children: <Widget>[
-                        Container(child: Image.asset('assets/images/appliances.png')),
-                        Text("Appliances")
-                      ],
+
+                    child: InkResponse(
+
+                      enableFeedback: true,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Container(child: Image.asset('assets/images/identity.png',height: 100.0,width: 100.0,)),
+                          Text("Identity")
+                        ],
+                      ),
+                      onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(1))),
                     ),
-                    onTap:()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(2))),
                   ),
-                ),
-                Container(
-                  decoration:BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red,
-                          blurRadius: 5.0,
-                          spreadRadius: 2.0,
-                        ),
-                      ]
-                  ),
-                  child: InkResponse(
-                    enableFeedback: true,
-                    child: Column(
-                      children: <Widget>[
-                        Container(child: Image.asset('assets/images/pickup-car.png')),
-                        Text("Identity")
-                      ],
+                  Container(
+                    decoration:BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red,
+                            blurRadius: 5.0,
+                            spreadRadius: 2.0,
+                          ),
+                        ]
                     ),
-                    onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(3))),
-                  ),
-                ),
-                Container(
-                  decoration:BoxDecoration(
-                      color: Colors.grey,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red,
-                          blurRadius: 5.0,
-                          spreadRadius: 2.0,
-                        ),
-                      ]
-                  ),
-                  child: InkResponse(
-                    enableFeedback: true,
-                    child: Column(
-                      children: <Widget>[
-                        Container(child: Image.asset('assets/images/bill.png')),
-                        Text("Utilities")
-                      ],
+                    child: InkResponse(
+                      enableFeedback: true,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Container(child: Image.asset('assets/images/appliances.png',height: 100.0,width: 100.0)),
+                          Text("Appliances")
+                        ],
+                      ),
+                      onTap:()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(2))),
                     ),
-                    onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(4))),
                   ),
-                ),
-              ],
+                  Container(
+                    decoration:BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red,
+                            blurRadius: 5.0,
+                            spreadRadius: 2.0,
+                          ),
+                        ]
+                    ),
+                    child: InkResponse(
+                      enableFeedback: true,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Container(child: Image.asset('assets/images/pickup-car.png',height: 100.0,width: 100.0)),
+                          Text("Vehicle")
+                        ],
+                      ),
+                      onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(3))),
+                    ),
+                  ),
+                  Container(
+                    decoration:BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red,
+                            blurRadius: 5.0,
+                            spreadRadius: 2.0,
+                          ),
+                        ]
+                    ),
+                    child: InkResponse(
+                      enableFeedback: true,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Container(child: Image.asset('assets/images/bill.png',height: 100.0,width: 100.0)),
+                          Text("Utilities")
+                        ],
+                      ),
+                      onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context) => Scan(4))),
+                    ),
+                  ),
+                ],
+              ),
             ),
 
 

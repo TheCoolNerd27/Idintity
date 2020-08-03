@@ -90,7 +90,7 @@ class _LoginState extends State<Login> {
                  }
              else
                  {
-                     Navigator.pushNamed(context, "/Scan");
+                     Navigator.pushNamed(context, "/Home");
                  }
           }
       else if(res==2)

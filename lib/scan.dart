@@ -37,6 +37,7 @@ class _ScanState extends State<Scan> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _getDueDate=new TextEditingController();
     setState(() {
       ques=true;
       ans=false;
@@ -48,11 +49,7 @@ class _ScanState extends State<Scan> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Scan"),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -65,20 +62,30 @@ class _ScanState extends State<Scan> {
   Widget content(context) {
     return SingleChildScrollView(
       child: Column(
+          mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-        Expanded(
+        Flexible(
           flex: 1,
           child: Stack(
             children: <Widget>[
               Container(
-                child:_image!=null?Image.file(_image, height: 300, width: 200):IconButton(icon: ImageIcon(AssetImage("assets/images/new.png")), onPressed: pick),
+                  height: MediaQuery.of(context).size.height*0.35,
+
+                child:_image!=null?
+                Image.file(_image, height: MediaQuery.of(context).size.height*0.5, width: MediaQuery.of(context).size.height*0.8)
+                    :
+                InkResponse(
+                child: Image(image:AssetImage('assets/images/new.png'),height: 60.0,width:40.0),
+                onTap: pick,
+                ),
               ),
 
             ],
           ),
-          
+
         ),
-          Expanded(
+          Flexible(
+
             flex: 1,
             child:Form(
               key:_formkey,
@@ -106,37 +113,33 @@ class _ScanState extends State<Scan> {
 
                   ),
                   SizedBox(height:15.0),
+                  SizedBox(height:15.0),
                   (widget.choice==1)?Identity():
                   (widget.choice==2)?Appliances():
                   (widget.choice==3)?Vehicle():Utilities(),
-                  SizedBox(height:15.0),
                   Row(
                     children: <Widget>[
                       Visibility(
                         visible: ques,
                           child: Text("Does it have a Due date?"),
                       ),
-                      ButtonBar(
-                        children: <Widget>[
-                          IconButton(
-                              icon: Icon(Icons.check,color: Colors.greenAccent,size: 25.0,),
-                              onPressed: (){
-                                setState(() {
-                                  ans=true;
-                                  getText();
-
-                                });
-                              }),
-                          SizedBox(width: 15.0,),
-                          IconButton(
-                              icon: Icon(Icons.clear,color: Colors.redAccent,size: 25.0,),
-                              onPressed: (){
+                      IconButton(
+                          icon: Icon(Icons.check,color: Colors.greenAccent,size: 25.0,),
+                          onPressed: (){
                             setState(() {
-                              ques=false;
+                              ans=true;
+                              getText();
+
                             });
-                          })
-                        ],
-                      )
+                          }),
+                      SizedBox(width: 15.0,),
+                      IconButton(
+                          icon: Icon(Icons.clear,color: Colors.redAccent,size: 25.0,),
+                          onPressed: (){
+                        setState(() {
+                          ques=false;
+                        });
+                      })
 
                     ],
                   ),
@@ -159,6 +162,20 @@ class _ScanState extends State<Scan> {
                               {
                                 //Upload To Firebase
                                 //Add a condition to Upload Date only if its not null
+                                  addEvent();
+                                  setState(() {
+                                      date=null;
+                                      dueDate=null;
+                                      toDate=null;
+                                      date=null;
+                                      _image=null;
+                                      ques=true;
+                                      ans=false;
+                                      dropdownValue=null;
+
+                                      _getDueDate.clear();
+                                  });
+
                                 _formkey.currentState.reset();
                               }
 
@@ -178,10 +195,12 @@ class _ScanState extends State<Scan> {
                              _image=null;
                              ques=true;
                              ans=false;
+                             dropdownValue=null;
+
                              _getDueDate.clear();
                            });
                           },
-                          child: Text("Scsn Again"),
+                          child: Text("Scan Again"),
                           textColor: Colors.white,
                           color: Colors.redAccent
                       ),
@@ -306,7 +325,7 @@ class _ScanState extends State<Scan> {
   }
   Widget Utilities()
   {
-    String dropdownValue="Type of Document";
+
     return DropdownButtonFormField<String>(
       value: dropdownValue ,
       icon: Icon(Icons.arrow_downward),
@@ -407,8 +426,9 @@ class _ScanState extends State<Scan> {
       toDate = toDat;
       //dueDate=txt;
       date = dd;
-      _getDueDate.value=date;
+
     });
+    _getDueDate.text=date;
     //addEvent();
   }
 
@@ -491,14 +511,22 @@ class _ScanState extends State<Scan> {
     };
 
     var calendarApi, result;
-    if (_authenticationService.getUSer() == null)
-      Navigator.pushNamed(context, "/Login");
-    else {
-      var authHeaders = await _authenticationService.getAuthHeaders();
-      final httpClient = GoogleHttpClient(authHeaders);
-      calendarApi = CalendarApi(httpClient);
-      result = calendarApi.events.insert( Event.fromJson(event),"primary",sendUpdates:"all");//sendUpdates:'true');
-      print(result);
+    var authHeaders;
+    try {
+        authHeaders = await _authenticationService.getAuthHeaders();
     }
+    catch(e)
+      {
+          Navigator.pushNamed(context, "/Login");
+      }
+
+        final httpClient = GoogleHttpClient(authHeaders);
+        calendarApi = CalendarApi(httpClient);
+        result = calendarApi.events.insert(Event.fromJson(event), "primary",
+            sendUpdates: "all"); //sendUpdates:'true');
+        print(result);
+
+
   }
+
 }
