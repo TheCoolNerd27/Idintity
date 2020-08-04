@@ -10,6 +10,9 @@ import 'package:hamari/LoginScreen.dart';
 import 'package:hamari/httpClient.dart';
 import 'package:hamari/auth_service.dart';
 import 'package:hamari/service_locator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final AuthenticationService _authenticationService =
     locator<AuthenticationService>();
@@ -17,8 +20,8 @@ final AuthenticationService _authenticationService =
 
 //TODO: Create an Upload function to upload doc to firebase and create calendar event if ans==true
 class Scan extends StatefulWidget {
-  int choice;
-  Scan(this.choice);
+  FirebaseUser user;
+  Scan(this.user);
   @override
   _ScanState createState() => _ScanState();
 }
@@ -28,7 +31,7 @@ class _ScanState extends State<Scan> {
   var _imageSize;
   var dueDate, date, toDate;
   final _formkey = GlobalKey<FormState>();
-  String dropdownValue;
+  String dropdownValue,dropdownValue1;
   String docName;
   BuildContext context;
   bool ques,ans;
@@ -37,6 +40,7 @@ class _ScanState extends State<Scan> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _getDueDate=new TextEditingController();
     setState(() {
       ques=true;
@@ -113,10 +117,44 @@ class _ScanState extends State<Scan> {
 
                   ),
                   SizedBox(height:15.0),
+              DropdownButtonFormField<String>(
+                value: dropdownValue1 ,
+
+                icon: Icon(Icons.arrow_downward),
+                iconSize: 24,
+                elevation: 16,
+                style: TextStyle(color: Colors.deepPurple),
+                hint: Text("Category"),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Category cannot be empty!";
+                  }
+                  else {
+                    return null;
+                  }
+
+                },
+                onChanged: (String newValue) {
+                  setState(() {
+                    dropdownValue1 = newValue;
+                  });
+                },
+                items: <String>['Identity', 'Appliance', 'Vehicle', 'Utilities']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
                   SizedBox(height:15.0),
-                  (widget.choice==1)?Identity():
-                  (widget.choice==2)?Appliances():
-                  (widget.choice==3)?Vehicle():Utilities(),
+                  Visibility(
+                    visible: dropdownValue1==null?false:true,
+                    child:
+                    ((dropdownValue1=="Identity")?Identity():
+                    (dropdownValue1=="Appliance")?Appliances():
+                    (dropdownValue1=="Vehicle")?Vehicle()
+                        :Utilities())),
                   Row(
                     children: <Widget>[
                       Visibility(
@@ -138,6 +176,7 @@ class _ScanState extends State<Scan> {
                           onPressed: (){
                         setState(() {
                           ques=false;
+                          ans=false;
                         });
                       })
 
@@ -162,21 +201,7 @@ class _ScanState extends State<Scan> {
                               {
                                 //Upload To Firebase
                                 //Add a condition to Upload Date only if its not null
-                                  addEvent();
-                                  setState(() {
-                                      date=null;
-                                      dueDate=null;
-                                      toDate=null;
-                                      date=null;
-                                      _image=null;
-                                      ques=true;
-                                      ans=false;
-                                      dropdownValue=null;
-
-                                      _getDueDate.clear();
-                                  });
-
-                                _formkey.currentState.reset();
+                                  Upload();
                               }
 
                           },
@@ -196,6 +221,7 @@ class _ScanState extends State<Scan> {
                              ques=true;
                              ans=false;
                              dropdownValue=null;
+                             dropdownValue1=null;
 
                              _getDueDate.clear();
                            });
@@ -526,6 +552,65 @@ class _ScanState extends State<Scan> {
             sendUpdates: "all"); //sendUpdates:'true');
         print(result);
 
+
+  }
+
+  void Upload()
+  async {
+    var now = new DateTime.now().millisecondsSinceEpoch
+        .toString();
+    StorageReference reference = FirebaseStorage().ref().child(
+        'Documents/${widget.user.uid}/$now/$docName');
+    StorageUploadTask uploadTask = reference.putFile(_image);
+
+    StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
+    String downloadUrl = await storageTaskSnapshot.ref.getDownloadURL();
+    if (ans == true) {
+      var rdate = DateTime
+          .parse(dueDate)
+          .millisecondsSinceEpoch
+          .toString();
+      var ref = Firestore.instance.collection('Users').document(widget.user.uid)
+          .collection("Documents")
+          .add({
+        'Document Name': docName,
+        'Category': dropdownValue1,
+        'Type': dropdownValue,
+        'Due Date': date,
+        'Date Timestamp': rdate,
+        'Url': downloadUrl,
+      });
+      addEvent();
+    }
+    else{
+      var ref = Firestore.instance.collection('Users').document(widget.user.uid)
+          .collection("Documents")
+          .add({
+        'Document Name': docName,
+        'Category': dropdownValue1,
+        'Type': dropdownValue,
+        'Url': downloadUrl,
+      });
+
+    }
+
+    setState(() {
+      date=null;
+      dueDate=null;
+      toDate=null;
+      date=null;
+      _image=null;
+      ques=true;
+      ans=false;
+      dropdownValue=null;
+      dropdownValue1=null;
+
+
+
+      _getDueDate.clear();
+    });
+
+    _formkey.currentState.reset();
 
   }
 
