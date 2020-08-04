@@ -112,6 +112,7 @@ class _DisplayState extends State<Display> {
                 .document(widget.user.uid)
                 .collection("Documents")
                 .where("Document Name",isEqualTo: widget.param)
+		.snapshots()
                 :Firestore.instance.collection("Users")
             .document(widget.user.uid)
             .collection("Documents")
