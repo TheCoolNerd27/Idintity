@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hamari/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:photo_view/photo_view.dart';
 
 //TODO:Add Photo Viewer
 //TODO:Error when Calling Search
@@ -49,46 +50,54 @@ class _DisplayState extends State<Display> {
   {
     return Padding(
       padding: EdgeInsets.all(16.0),
-      child: Row(
-          children: <Widget>[
-              Container(
-                  width: 100.0,
-                  height: 100.0,
-                  decoration: BoxDecoration(
-                      image:DecorationImage(
-                          image: NetworkImage(doc['Url']),
-                          fit: BoxFit.cover,
-                      ),
-                      borderRadius: BorderRadius.circular(20.0),
-                  ),
-              ),
-              SizedBox(width: 20.0,),
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                      Text("${doc['Document Name']}",
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22.0,
+      child: InkResponse(
+        child: Row(
+            children: <Widget>[
+                Container(
+                    width: 100.0,
+                    height: 100.0,
+                    decoration: BoxDecoration(
+                        image:DecorationImage(
+                            image: NetworkImage(doc['Url']),
+                            fit: BoxFit.cover,
+                        ),
+                        borderRadius: BorderRadius.circular(20.0),
+                    ),
+                ),
+                SizedBox(width: 20.0,),
+                Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                        Text("${doc['Document Name']}",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22.0,
 
-                      ),),
-                      SizedBox(height: 10.0,),
-                      Text("Due Date:-${doc['Due Date']}",
-                      style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold
-                      ),),
-                      SizedBox(height: 10.0,),
-                      Text("${doc['Category']},${doc['Type']}",
-                          style:TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey
-                          ) ,)
+                        ),),
+                        SizedBox(height: 10.0,),
+                        Text("Due Date:-${doc['Due Date']}",
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold
+                        ),),
+                        SizedBox(height: 10.0,),
+                        Text("${doc['Category']},${doc['Type']}",
+                            style:TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey
+                            ) ,)
 
-                  ],
-              )
-          ],
+                    ],
+                )
+            ],
 
+        ),
+          onTap: (){
+            print('Fail');
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => Photo(doc['Url'])));
+
+          },
       ),
     );
 
@@ -112,7 +121,7 @@ class _DisplayState extends State<Display> {
                 .document(widget.user.uid)
                 .collection("Documents")
                 .where("Document Name",isEqualTo: widget.param)
-		.snapshots()
+		            .snapshots()
                 :Firestore.instance.collection("Users")
             .document(widget.user.uid)
             .collection("Documents")
@@ -128,7 +137,12 @@ class _DisplayState extends State<Display> {
                 else{
                     if(snapshot.data.documents.length==0)
                         {
-                            return Text("No Documents!");
+                            return Center(child: Text("No Documents!",style:
+                                TextStyle(
+                                    fontSize: 22.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                ),));
                         }
                     return ListView.builder(
                         scrollDirection: Axis.vertical,
@@ -150,6 +164,30 @@ class _DisplayState extends State<Display> {
 
   }
 }
+
+class Photo extends StatelessWidget {
+    String url;
+    Photo(this.url);
+  @override
+  Widget build(BuildContext context) {
+       return new Scaffold(
+          body: Container(
+              color: Colors.black,
+            child: Center(
+              child: new Image.network(
+              url,
+              fit: BoxFit.cover,
+
+              alignment: Alignment.center,
+      ),
+            ),
+          ),
+      );
+  }
+}
+
+
+
 
 
 

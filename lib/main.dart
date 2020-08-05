@@ -77,6 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: MyDrawer(),
+
       body: ListView(
 
         children: <Widget>[
@@ -94,22 +95,30 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Row(
-                    //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      CircleAvatar(
-                        backgroundImage: user != null
-                            ? NetworkImage(user.photoUrl)
-                            : NetworkImage(
-                            "https://cdn.iconscout.com/icon/free/png-256/laptop-user-1-1179329.png"),
+                      Row(
+
+                        children: <Widget>[
+                          CircleAvatar(
+                            backgroundImage: user != null
+                                ? NetworkImage(user.photoUrl)
+                                : NetworkImage(
+                                "https://cdn.iconscout.com/icon/free/png-256/laptop-user-1-1179329.png"),
+                          ),
+                          SizedBox(
+                            width: 10.0,
+                          ),
+                          user != null? Text(
+                            "Hi, ${user.displayName}",
+                            style: TextStyle(color: Colors.white),
+                          ):Text("Loading..."),
+                        ],
                       ),
-                      SizedBox(
-                        width: 10.0,
-                      ),
-                      user != null? Text(
-                        "Hi, ${user.displayName}",
-                        style: TextStyle(color: Colors.white),
-                      ):Text("Loading..."),
+                        _popup(),
+
                     ],
+
                   ),
                   SizedBox(
                     height: 30.0,
@@ -276,4 +285,34 @@ class _MyHomePageState extends State<MyHomePage> {
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+  Widget _popup()=>PopupMenuButton(icon:Icon(Icons.settings,color: Colors.white,),itemBuilder: (context) {
+    var list = List<PopupMenuEntry<Object>>();
+    list.add(
+      PopupMenuItem(
+        child: ListTile(
+          leading: Icon(Icons.exit_to_app),
+          title: Text("Logout"),
+          onTap: () {
+            _authenticationService.signOut();
+          },
+        ),
+        value: 1,
+      ),
+    );
+    list.add(
+      PopupMenuItem(
+        child: ListTile(
+          leading: Icon(Icons.home),
+          title: Text("Log in"),
+          onTap: () {
+            _authenticationService.signOut();
+            Navigator.pushNamed(context, '/Login');
+          },
+        ),
+        value: 2,
+      ),
+    );
+    return list;
+  }
+  );
 }

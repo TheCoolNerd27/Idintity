@@ -63,6 +63,36 @@ class _ScanState extends State<Scan> {
     );
   }
 
+  Widget _popup()=>PopupMenuButton(icon:Icon(Icons.add,color: Colors.red,size: 50.0,),itemBuilder: (context) {
+    var list = List<PopupMenuEntry<Object>>();
+    list.add(
+      PopupMenuItem(
+        child: ListTile(
+          leading: Icon(Icons.camera),
+          title: Text("Camera"),
+          onTap: () {
+            pick(2);
+          },
+        ),
+        value: 1,
+      ),
+    );
+    list.add(
+      PopupMenuItem(
+        child: ListTile(
+          leading: Icon(Icons.photo_library),
+          title: Text("Gallery"),
+          onTap: () {
+            pick(1);
+          },
+        ),
+        value: 2,
+      ),
+    );
+    return list;
+  }
+  );
+
   Widget content(context) {
     return SingleChildScrollView(
       child: Column(
@@ -78,10 +108,7 @@ class _ScanState extends State<Scan> {
                 child:_image!=null?
                 Image.file(_image, height: MediaQuery.of(context).size.height*0.5, width: MediaQuery.of(context).size.height*0.8)
                     :
-                InkResponse(
-                child: Image(image:AssetImage('assets/images/new.png'),height: 60.0,width:40.0),
-                onTap: pick,
-                ),
+                _popup(),
               ),
 
             ],
@@ -386,10 +413,18 @@ class _ScanState extends State<Scan> {
   }
 
 
-  void pick() async {
+  void pick(int choice) async {
+    PickedFile Pimage;
     //pick image   use ImageSource.camera for accessing camera.
-    PickedFile Pimage =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+    if(choice==1) {
+      Pimage =
+      await ImagePicker().getImage(source: ImageSource.gallery);
+    }
+    else if(choice==2)
+      {
+        Pimage =
+        await ImagePicker().getImage(source: ImageSource.camera);
+      }
     File image = File(Pimage.path);
     File croppedFile = await ImageCropper.cropImage(
         sourcePath: image.path,
