@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hamari/service_locator.dart';
-import 'package:hamari/auth_service.dart';
+import 'package:idintity/service_locator.dart';
+import 'package:idintity/auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -22,7 +22,13 @@ class _LoginState extends State<Login> {
       return Scaffold(
           appBar: AppBar(
 
-              title: Text("Login"),),
+              title: Row(
+                  children: <Widget>[
+                      Image.asset("assets/images/Logo.png",height:35.0 ,width: 35.0,),
+                      SizedBox(width: 10.0,),
+                      Text("Idintity"),
+                  ],
+              ),),
           drawer: MyDrawer(),
           body:Container(
               padding:EdgeInsets.all(25.0) ,
@@ -160,7 +166,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                 });
                 if(ans==_answer)
                     {
-                        Navigator.pushNamed(context, "/Scan");
+                        Navigator.pushNamed(context, "/Home");
                     }
                 else
                     {
@@ -287,7 +293,7 @@ class MyDrawer extends StatelessWidget {
                           color: Colors.blue,
                           image:DecorationImage(
                               fit: BoxFit.fill,
-                              image:  AssetImage('assets/images/drawer_header_background.png'))
+                              image:  AssetImage('assets/images/Idintity.png'))
 
                       ),
                       child: Stack(children: <Widget>[

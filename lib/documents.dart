@@ -1,9 +1,9 @@
-import 'package:hamari/service_locator.dart';
+import 'package:idintity/service_locator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hamari/LoginScreen.dart';
+import 'package:idintity/LoginScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -17,7 +17,13 @@ class DisplayPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text("Documents"),
+            title: Row(
+                children: <Widget>[
+                    Image.asset("assets/images/Logo.png",height:35.0 ,width: 35.0,),
+                    SizedBox(width: 10.0,),
+                    Text("Idintity"),
+                ],
+            ),
 
         ),
         body: Padding(
@@ -75,11 +81,11 @@ class _DisplayState extends State<Display> {
 
                         ),),
                         SizedBox(height: 10.0,),
-                        Text("Due Date:-${doc['Due Date']}",
+                        doc['Due Date']!=null?Text("Due Date:-${doc['Due Date']}",
                         style: TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold
-                        ),),
+                        ),):Container(),
                         SizedBox(height: 10.0,),
                         Text("${doc['Category']},${doc['Type']}",
                             style:TextStyle(

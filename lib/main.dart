@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:hamari/scan.dart';
-import 'package:hamari/auth_service.dart';
-import 'package:hamari/service_locator.dart';
-import 'package:hamari/LoginScreen.dart';
-import 'package:hamari/documents.dart';
+import 'package:idintity/scan.dart';
+import 'package:idintity/auth_service.dart';
+import 'package:idintity/service_locator.dart';
+import 'package:idintity/LoginScreen.dart';
+import 'package:idintity/documents.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 final AuthenticationService _authenticationService =
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
 //    if(_authenticationService.getUSer()!=null)
 //      _defaultHome=ScanPage();
     return MaterialApp(
-      title: 'Hamari',
+      title: 'idintity',
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
@@ -100,15 +100,25 @@ class _MyHomePageState extends State<MyHomePage> {
                       Row(
 
                         children: <Widget>[
-                          CircleAvatar(
-                            backgroundImage: user != null
-                                ? NetworkImage(user.photoUrl)
-                                : NetworkImage(
-                                "https://cdn.iconscout.com/icon/free/png-256/laptop-user-1-1179329.png"),
+                          Column(
+                            children: <Widget>[
+                              Image.asset("assets/images/Logo.png",height:40.0 ,width: 40.0,),
+                              SizedBox(height:5.0),
+                              Text('idintity',style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15.0,
+                                color: Colors.white,
+
+                              ),),
+                            ],
                           ),
+
+
                           SizedBox(
                             width: 10.0,
                           ),
+
+                          SizedBox(height: 5.0,),
                           user != null? Text(
                             "Hi, ${user.displayName}",
                             style: TextStyle(color: Colors.white),
@@ -144,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                     onSubmitted: (value){
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => DisplayPage(user,"Search",param: params,)));
+                          builder: (context) => DisplayPage(user,"Search",param: value,)));
 
                     },
                   ),
@@ -164,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             height: 250.0,
             child: GridView.count(
+              physics: NeverScrollableScrollPhysics(),
               crossAxisCount: 3,
               padding: const EdgeInsets.all(10),
               crossAxisSpacing: 10,

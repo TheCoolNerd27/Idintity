@@ -1,4 +1,4 @@
-name: hamari
+name: idintity
 description: A new Flutter application.
 
 # The following defines the version and build number for your application.
@@ -64,6 +64,8 @@ flutter:
     - assets/images/new.png
     - assets/images/identity.png
     - assets/images/pickup-car.png
+    - assets/images/Logo.png
+    - assets/images/Idintity.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

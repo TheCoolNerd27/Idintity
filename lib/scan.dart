@@ -6,10 +6,10 @@ import 'dart:io';
 import 'package:googleapis/calendar/v3.dart' hide Colors;
 import 'package:path/path.dart' as path;
 import 'package:image_cropper/image_cropper.dart';
-import 'package:hamari/LoginScreen.dart';
-import 'package:hamari/httpClient.dart';
-import 'package:hamari/auth_service.dart';
-import 'package:hamari/service_locator.dart';
+import 'package:idintity/LoginScreen.dart';
+import 'package:idintity/httpClient.dart';
+import 'package:idintity/auth_service.dart';
+import 'package:idintity/service_locator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -32,9 +32,9 @@ class _ScanState extends State<Scan> {
   var dueDate, date, toDate;
   final _formkey = GlobalKey<FormState>();
   String dropdownValue,dropdownValue1;
-  String docName;
+  String docName,url;
   BuildContext context;
-  bool ques,ans;
+  bool ques,ans,loading;
   TextEditingController _getDueDate;
   @override
   void initState() {
@@ -45,14 +45,20 @@ class _ScanState extends State<Scan> {
     setState(() {
       ques=true;
       ans=false;
-
+      loading=false;
     });
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Scan"),
+        title: Row(
+          children: <Widget>[
+            Image.asset("assets/images/Logo.png",height:35.0 ,width: 35.0,),
+            SizedBox(width: 10.0,),
+            Text("Idintity"),
+          ],
+        ),
 
       ),
       body: Padding(
@@ -95,7 +101,7 @@ class _ScanState extends State<Scan> {
 
   Widget content(context) {
     return SingleChildScrollView(
-      child: Column(
+      child: loading==false?Column(
           mainAxisSize: MainAxisSize.min,
         children: <Widget>[
         Flexible(
@@ -123,6 +129,8 @@ class _ScanState extends State<Scan> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  Text("*Make sure to crop the backgroud!",textAlign:TextAlign.left,style: TextStyle(fontSize: 12.0,color: Colors.red),),
+                  Text("*Sometimes you might have to scan again to get Due Date!",style: TextStyle(fontSize: 12.0,color: Colors.red),),
                   TextFormField(
                     decoration: InputDecoration(
                       labelText: 'Document Name',
@@ -268,6 +276,11 @@ class _ScanState extends State<Scan> {
 
 
         ],
+      ):Padding(
+        padding: const EdgeInsets.all(50.0),
+        child: Center(
+            child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.red))),
       ),
     );
   }
@@ -458,9 +471,12 @@ class _ScanState extends State<Scan> {
         FirebaseVision.instance.textRecognizer();
     final VisionText visionText =
         await textRecognizer.processImage(visionImage);
+    String pattern2 =
+        r"_?:?((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_?";
     String pattern =
-        r"_?((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_?";
+        r"_:?((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_";
     RegExp regEx = RegExp(pattern, multiLine: true);
+    RegExp regEx2 = RegExp(pattern2, multiLine: true);
     //Returns All Matching Dates as a Map
 
     String txt = visionText.text;
@@ -470,6 +486,13 @@ class _ScanState extends State<Scan> {
         .map((str) => convertDate(str))
         .map((str) => DateTime.parse(str).toIso8601String())
         .toList();
+    if(extDates.isEmpty)
+      extDates = _allStringMatches(txt.replaceAll(" ", "_"), regEx2)
+          .map((str) => str.replaceAll("_", ""))
+          .map((str) => convertDate(str))
+          .map((str) => DateTime.parse(str).toIso8601String())
+          .toList();
+
     extDates.sort((a, b) => b.compareTo(a));
     var dd;
     print(extDates);
@@ -481,7 +504,7 @@ class _ScanState extends State<Scan> {
     res[0] = res[2];
     res[2] = temp;
     dd = res.join("-");
-    var dDate = extDates[0];
+    var dDate =DateTime.parse(extDates[0]).subtract(Duration(days: 7)).toIso8601String();
     setState(() {
       dueDate = dDate;
       toDate = toDat;
@@ -555,7 +578,7 @@ class _ScanState extends State<Scan> {
   void addEvent() async {
     var event = {
       'summary': 'Due Date',
-      'description': 'Your Document $docName is Due Today!',
+      'description': 'Your Document $docName is Due!(Via: Idintity)',
       'start': {
         'dateTime': dueDate,
         'timeZone': 'Asia/Calcutta',
@@ -597,9 +620,15 @@ class _ScanState extends State<Scan> {
     StorageReference reference = FirebaseStorage().ref().child(
         'Documents/${widget.user.uid}/$now/$docName');
     StorageUploadTask uploadTask = reference.putFile(_image);
-
+    setState(() {
+      loading=true;
+    });
     StorageTaskSnapshot storageTaskSnapshot = await uploadTask.onComplete;
     String downloadUrl = await storageTaskSnapshot.ref.getDownloadURL();
+    setState(() {
+      url=downloadUrl;
+      loading=false;
+    });
     if (ans == true) {
       var rdate = DateTime
           .parse(dueDate)
@@ -615,6 +644,7 @@ class _ScanState extends State<Scan> {
         'Date Timestamp': rdate,
         'Url': downloadUrl,
       });
+
       addEvent();
     }
     else{
