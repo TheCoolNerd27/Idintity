@@ -9,6 +9,8 @@ google-services.json
 .buildlog/
 .history
 .json
+key.properties
+key.jks
 .svn/
 
 # IntelliJ related

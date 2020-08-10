@@ -129,7 +129,7 @@ class _ScanState extends State<Scan> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Text("*Make sure to crop the backgroud!",textAlign:TextAlign.left,style: TextStyle(fontSize: 12.0,color: Colors.red),),
+                  Text("*Make sure the image is not rotated",textAlign:TextAlign.left,style: TextStyle(fontSize: 12.0,color: Colors.red),),
                   Text("*Sometimes you might have to scan again to get Due Date!",style: TextStyle(fontSize: 12.0,color: Colors.red),),
                   TextFormField(
                     decoration: InputDecoration(
@@ -472,27 +472,49 @@ class _ScanState extends State<Scan> {
     final VisionText visionText =
         await textRecognizer.processImage(visionImage);
     String pattern2 =
-        r"_?:?((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_?";
+        r"((Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})";
     String pattern =
-        r"_:?((([0-9])|([0-2][0-9])|([3][0-1]))?(((_)?\-(_)?|(_)?\/(_)?)|_)?(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|[0-9]|[0][0-9]|[0-1][0-2])(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_";
+        r"_?((([0-9])|([0-2][0-9])|([3][0-1]))(((_)?\-(_)?|(_)?\/(_)?)|_)(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?|([0-9]|([0][0-9])|([0-1][0-2])))(((_)?\-(_)?|(_)?\/(_)?)|_)\d{4})_?";
     RegExp regEx = RegExp(pattern, multiLine: true);
     RegExp regEx2 = RegExp(pattern2, multiLine: true);
     //Returns All Matching Dates as a Map
+print("Words:");
 
     String txt = visionText.text;
-    print(txt.replaceAll(" ", "_"));
-    var extDates = _allStringMatches(txt.replaceAll(" ", "_"), regEx)
-        .map((str) => str.replaceAll("_", ""))
+    //print(txt.replaceAll(" ", "_"));
+//    var extDates = _allStringMatches(txt.replaceAll(" ", "_"), regEx)
+//        .map((str) {str.replaceAll("_", "");})
+//        .map((str) => convertDate(str))
+//        .map((str) => DateTime.parse(str).toIso8601String())
+//        .toList();
+//    if(extDates.isEmpty)
+//      extDates = _allStringMatches(txt.replaceAll(" ", "_"), regEx2)
+//          .map((str) => str.replaceAll("_", ""))
+//          .map((str) => convertDate(str))
+//          .map((str) => DateTime.parse(str).toIso8601String())
+//          .toList();
+    var extDates=[];
+    for( TextBlock block in visionText.blocks)
+    {
+      for(TextLine line in block.lines)
+      {
+        for(TextElement word in line.elements) {
+          print("${word.text},Match:${regEx.allMatches(word.text).map((m) =>
+              m.group(0)).toList()}");
+          extDates.addAll(regEx.allMatches(word.text).map((m) => m.group(0)).toList());
+          print("${word.text},Match:${regEx2.allMatches(word.text).map((m) =>
+              m.group(0)).toList()}");
+          extDates.addAll(regEx2.allMatches(word.text).map((m) => m.group(0)).toList());
+        }
+
+      }
+
+    }
+    extDates=extDates
         .map((str) => convertDate(str))
+        .map((str)=>str.replaceAll("/", "-"))
         .map((str) => DateTime.parse(str).toIso8601String())
         .toList();
-    if(extDates.isEmpty)
-      extDates = _allStringMatches(txt.replaceAll(" ", "_"), regEx2)
-          .map((str) => str.replaceAll("_", ""))
-          .map((str) => convertDate(str))
-          .map((str) => DateTime.parse(str).toIso8601String())
-          .toList();
-
     extDates.sort((a, b) => b.compareTo(a));
     var dd;
     print(extDates);
@@ -517,8 +539,12 @@ class _ScanState extends State<Scan> {
   }
 
   String convertDate(String dates) {
+
     var res = dates.split(new RegExp(r"(-|\/)"));
+
     if (res.length == 2) res.insert(0, "01");
+    if(res[0].length==1)
+      res[0]="0"+res[0];
     switch (res[(res.length - 2)]) {
       case "Jan":
       case "January":
@@ -571,6 +597,7 @@ class _ScanState extends State<Scan> {
     var temp = res[2];
     res[2] = res[0];
     res[0] = temp;
+    print("RES::::::::::${res.join("-")}");
 
     return (res.join("-"));
   }
