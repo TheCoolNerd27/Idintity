@@ -59,6 +59,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   FirebaseUser user;
   String params;
+  var cnt=new TextEditingController();
 
   @override
   void initState() {
@@ -146,6 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 16.0),
                     ),
+                    controller: cnt,
                     onChanged:(value){
                       setState(() {
                         params=value;
@@ -154,9 +156,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                     onSubmitted: (value){
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => DisplayPage(user,"Search",param: value,)));
-
+                          builder: (context) => DisplayPage(user,"Search",param:value,)));
+                    cnt.clear();
                     },
+
                   ),
                 ]),
           ),
@@ -174,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             height: 250.0,
             child: GridView.count(
-              physics: NeverScrollableScrollPhysics(),
+             // physics: NeverScrollableScrollPhysics(),
               crossAxisCount: 3,
               padding: const EdgeInsets.all(10),
               crossAxisSpacing: 10,
@@ -289,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Display(user,"All"),
+            child: Display(user,"DeadLine"),
           ),
         ],
       ),

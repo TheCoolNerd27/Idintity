@@ -198,7 +198,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                         backgroundColor: Colors.greenAccent,
                         textColor: Colors.black,
                         fontSize: 16.0);
-                    Navigator.pushNamed(context, '/Scan');
+                    Navigator.pushNamed(context, '/Home');
                 }).catchError((err) {
                 Fluttertoast.showToast(
                     msg: err.toString(),
@@ -301,7 +301,7 @@ class MyDrawer extends StatelessWidget {
                               bottom: 8.0,
                               left: 18.0,
                               right: 0.0,
-                              child: Text("Identity",
+                              child: Text("Idintity",
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20.0,
@@ -309,16 +309,16 @@ class MyDrawer extends StatelessWidget {
                               ),
                           ]),),
 
-                  ListTile(
-                      leading: Icon(Icons.dashboard),
-                      title: Text('Dashboard'),
-                      onTap: () {
-                          // Update the state of the app
-                          // ...
-                          // Then close the drawer
-                          Navigator.pushNamed(context,'/');
-                      },
-                  ),
+//                  ListTile(
+//                      leading: Icon(Icons.dashboard),
+//                      title: Text('Feedback'),
+//                      onTap: () {
+//                          // Update the state of the app
+//                          // ...
+//                          // Then close the drawer
+//                          Navigator.pushNamed(context,'/');
+//                      },
+//                  ),
                   ListTile(
                       leading: Icon(Icons.input),
                       title: Text('Login'),

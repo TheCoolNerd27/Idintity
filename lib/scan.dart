@@ -13,6 +13,7 @@ import 'package:idintity/service_locator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:photo_view/photo_view.dart';
 
 final AuthenticationService _authenticationService =
     locator<AuthenticationService>();
@@ -26,6 +27,31 @@ class Scan extends StatefulWidget {
   _ScanState createState() => _ScanState();
 }
 
+class Photo2 extends StatelessWidget {
+  File _image;
+  Photo2(this._image);
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      body: Container(
+        //color: Colors.black,
+//            child: Center(
+//              child: new Image.network(
+//              url,
+//              fit: BoxFit.cover,
+//
+//              alignment: Alignment.center,
+//      ),
+//            ),
+        child: PhotoView(
+          imageProvider: FileImage(_image),
+        ),
+      ),
+    );
+  }
+}
+
+
 class _ScanState extends State<Scan> {
   File _image;
   var _imageSize;
@@ -36,6 +62,7 @@ class _ScanState extends State<Scan> {
   BuildContext context;
   bool ques,ans,loading;
   TextEditingController _getDueDate;
+  var selectedDate;
   @override
   void initState() {
     // TODO: implement initState
@@ -46,6 +73,7 @@ class _ScanState extends State<Scan> {
       ques=true;
       ans=false;
       loading=false;
+      selectedDate=DateTime.now();
     });
   }
   @override
@@ -112,7 +140,13 @@ class _ScanState extends State<Scan> {
                   height: MediaQuery.of(context).size.height*0.35,
 
                 child:_image!=null?
-                Image.file(_image, height: MediaQuery.of(context).size.height*0.5, width: MediaQuery.of(context).size.height*0.8)
+                InkResponse(
+                    onTap:(){
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => Photo2(_image)));
+
+                    },
+                    child: Image.file(_image, height: MediaQuery.of(context).size.height*0.5, width: MediaQuery.of(context).size.height*0.8))
                     :
                 _popup(),
               ),
@@ -220,10 +254,16 @@ class _ScanState extends State<Scan> {
                   SizedBox(height:15.0),
                   Visibility(
                     visible: ans,
-                    child: TextFormField(
-                      controller: _getDueDate,
-                      decoration: InputDecoration(labelText: 'DueDate'),
-                      enabled: false,
+                    child: InkResponse(
+                      onTap: (){
+                        _selectDate(context);
+                      },
+                      child: TextFormField(
+                        controller: _getDueDate,
+                        decoration: InputDecoration(labelText: 'DueDate'),
+
+                        enabled: false,
+                      ),
                     ),
                   ),
 
@@ -257,7 +297,7 @@ class _ScanState extends State<Scan> {
                              ans=false;
                              dropdownValue=null;
                              dropdownValue1=null;
-
+                              selectedDate=null;
                              _getDueDate.clear();
                            });
                           },
@@ -308,7 +348,8 @@ class _ScanState extends State<Scan> {
           dropdownValue = newValue;
         });
       },
-      items: <String>['Passport', 'Aadhar', 'Voter', 'Pan','Certificates','Courses','Others']
+//        items: <String>['Passport', 'Aadhar', 'Voter', 'Pan','Certificates','Courses','Others']
+      items: <String>['Others']
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -343,7 +384,7 @@ class _ScanState extends State<Scan> {
           dropdownValue = newValue;
         });
       },
-      items: <String>['Washing Machine', 'Microwave', 'Fridge', 'AC','Dishwasher','T.V']
+      items: <String>['Washing Machine', 'Microwave', 'Fridge', 'AC','Dishwasher','T.V','Furniture','Others']
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -423,6 +464,33 @@ class _ScanState extends State<Scan> {
     );
 
 
+  }
+
+  Future<Null> _selectDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != selectedDate) {
+      var dd=picked.toString().substring(0, 10);
+      var res = dd.split("-");
+      var temp = res[0];
+      res[0] = res[2];
+      res[2] = temp;
+      dd = res.join("-");
+      var dDate =picked.subtract(Duration(days: 7)).toIso8601String();
+      var toDat =
+      picked.add(Duration(days: 1)).toIso8601String();
+      setState(() {
+        selectedDate = picked;
+        _getDueDate.text = dd;
+        dueDate=dDate;
+        toDate=toDat;
+        date=dd;
+
+      });
+    }
   }
 
 
@@ -516,7 +584,7 @@ print("Words:");
         .map((str) => DateTime.parse(str).toIso8601String())
         .toList();
     extDates.sort((a, b) => b.compareTo(a));
-    var dd;
+    var dd,dd2;
     print(extDates);
     dd = DateTime.parse(extDates[0]).toString().substring(0, 10);
     var toDat =
@@ -525,13 +593,13 @@ print("Words:");
     var temp = res[0];
     res[0] = res[2];
     res[2] = temp;
-    dd = res.join("-");
+    dd2 = res.join("-");
     var dDate =DateTime.parse(extDates[0]).subtract(Duration(days: 7)).toIso8601String();
     setState(() {
       dueDate = dDate;
       toDate = toDat;
       //dueDate=txt;
-      date = dd;
+      date = dd2;
 
     });
     _getDueDate.text=date;
