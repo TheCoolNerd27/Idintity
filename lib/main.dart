@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,9 @@ import 'package:idintity/auth_service.dart';
 import 'package:idintity/service_locator.dart';
 import 'package:idintity/LoginScreen.dart';
 import 'package:idintity/documents.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+
 
 final AuthenticationService _authenticationService =
     locator<AuthenticationService>();
@@ -19,6 +22,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: analytics);
   @override
   Widget build(BuildContext context) {
 //    Widget _defaultHome=Login();
@@ -26,6 +30,7 @@ class MyApp extends StatelessWidget {
 //      _defaultHome=ScanPage();
     return MaterialApp(
       title: 'idintity',
+      navigatorObservers: <NavigatorObserver>[observer],
       theme: ThemeData(
         primarySwatch: Colors.red,
       ),
@@ -156,7 +161,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                     onSubmitted: (value){
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => DisplayPage(user,"Search",param:value,)));
+                          builder: (context) => DisplayPage(user,"Search",param:value,),
+                          settings: const RouteSettings(name: '/Home/Search')));
                     cnt.clear();
                     },
 
@@ -196,7 +202,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => Scan(user))),
+                      builder: (context) => Scan(user),
+                      settings: const RouteSettings(name: '/Scan'))),
                 ),
                 InkResponse(
                   enableFeedback: true,
@@ -210,7 +217,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DisplayPage(user, "All"))),
+                      builder: (context) => DisplayPage(user, "All"),
+                      settings: const RouteSettings(name: '/AllDocuments'))),
                 ),
                 InkResponse(
                   enableFeedback: true,
@@ -226,7 +234,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DisplayPage(user, "Identity"))),
+                      builder: (context) => DisplayPage(user, "Identity"),
+                      settings: const RouteSettings(name: '/Category/Identity'))),
                 ),
                 InkResponse(
                   enableFeedback: true,
@@ -242,7 +251,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DisplayPage(user, "Appliance"))),
+                      builder: (context) => DisplayPage(user, "Appliance"),
+                      settings: const RouteSettings(name: '/Category/Appliance'))),
                 ),
                 InkResponse(
                   enableFeedback: true,
@@ -258,7 +268,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DisplayPage(user, "Vehicle"))),
+                      builder: (context) => DisplayPage(user, "Vehicle"),
+                      settings: const RouteSettings(name: '/Category/Vehicle'))),
                 ),
                 InkResponse(
                   enableFeedback: true,
@@ -274,7 +285,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => DisplayPage(user, "Utilities"))),
+                      builder: (context) => DisplayPage(user, "Utilities"),
+                      settings: const RouteSettings(name: '/Category/Utilities'))),
                 ),
               ],
             ),

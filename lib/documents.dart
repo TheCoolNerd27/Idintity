@@ -153,7 +153,7 @@ class _DisplayState extends State<Display> {
   }
   Widget buildList()
   {
-      print('param:${widget.param}');
+      
       return Container(
         child: widget.user==null?
         Center(

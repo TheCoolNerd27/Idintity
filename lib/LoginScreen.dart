@@ -76,7 +76,7 @@ class _LoginState extends State<Login> {
 
                      });
 
-
+                     analytics.logLogin();
                      Fluttertoast.showToast(
                          msg: "Login Successful",
                          toastLength: Toast.LENGTH_SHORT,
