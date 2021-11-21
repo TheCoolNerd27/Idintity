@@ -1,6 +1,7 @@
 # Idintity
 
 A new Flutter application.
+[Link to Playstore](https://play.google.com/store/apps/details?id=com.thecoolnerd.idintity&hl=en_US)
 
 ## Getting Started
 
